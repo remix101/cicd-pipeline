@@ -18,9 +18,35 @@ jobs:
           name: "Say hello"
           command: "echo Hello, World!"
 
+  print_hello:
+    build: print_hello
+    docker: # executor type
+      - image: circleci/node:13.8.0 # primary container will run the latest, production-ready base image
+    steps:
+      - checkout
+      - run:
+          name: "Hello"
+          command: "echo Hello"
+    requires:
+      - build
+
+  print_world:
+    build: print_world
+    docker: # executor type
+      - image: circleci/node:13.8.0 # primary container will run the latest, production-ready base image
+    steps:
+      - checkout
+      - run:
+          name: "World"
+          command: "echo World"
+    requires:
+      - print_hello
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
       - say-hello
+      - Hello
+      - World
