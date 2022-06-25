@@ -2,6 +2,24 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+
+# commands:
+#   print_pipeline_id:
+#     steps:
+#       - run: echo ${CIRCLE_WORKFLOW_ID}
+
+# jobs:
+#   my_job:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - print_pipeline_id
+
+# workflows:
+#   my_workflow:
+#     jobs:
+#       - my_job
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -18,6 +36,7 @@ jobs:
           name: "Say hello"
           command: echo Hello, World! $env
 
+  
   print_hello:
     docker: # executor type
       - image: circleci/node:13.8.0 # primary container will run the latest, production-ready base image
@@ -25,6 +44,7 @@ jobs:
       - run:
           name: "Hello"
           command: "echo Hello"
+    
 
   print_world:
     docker: # executor type
@@ -33,15 +53,32 @@ jobs:
       - run:
           name: "World"
           command: "echo World"
+  
+  save_hello_world_output:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run: echo "hello world" > ~/output.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - output.txt
+
+  print_output_file:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: cat ~/output.txt
 
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  my-workflow:
     jobs:
-      - say-hello
-      - print_hello
-      - print_world:
-              requires:
-                - print_hello
+      - save_hello_world_output
+      - print_output_file:
+          requires:
+            - save_hello_world_output
