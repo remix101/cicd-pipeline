@@ -1,84 +1,17 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-
-# commands:
-#   print_pipeline_id:
-#     steps:
-#       - run: echo ${CIRCLE_WORKFLOW_ID}
-
-# jobs:
-#   my_job:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - print_pipeline_id
-
-# workflows:
-#   my_workflow:
-#     jobs:
-#       - my_job
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: echo Hello, World! $env
-
-  
-  print_hello:
-    docker: # executor type
-      - image: circleci/node:13.8.0 # primary container will run the latest, production-ready base image
-    steps:
-      - run:
-          name: "Hello"
-          command: "echo Hello"
-    
-
-  print_world:
-    docker: # executor type
-      - image: circleci/node:13.8.0 # primary container will run the latest, production-ready base image
-    steps:
-      - run:
-          name: "World"
-          command: "echo World"
-  
-  save_hello_world_output:
+  my_job:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - run: echo "hello world" > ~/output.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - output.txt
+      - run: exit 1
+      - run:
+          name: on error
+          command: echo "Hello Error!"
+          when: on_fail
 
-  print_output_file:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: cat ~/output.txt
-
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  my-workflow:
+  my_workflow:
     jobs:
-      - save_hello_world_output
-      - print_output_file:
-          requires:
-            - save_hello_world_output
+      - my_job
